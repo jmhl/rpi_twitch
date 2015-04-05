@@ -18,9 +18,12 @@ func ListStreams(streams []structs.FormattedStream) {
 }
 
 func OpenStream(stream structs.FormattedStream) {
-  str := fmt.Sprintf("livestreamer %s best -np 'omxplayer -o hdmi'", stream.Url)
-  // os.exec(str)
-  exec.Command(fmt.Sprintf("echo %s", str))
+  to_exec := "livestreamer"
+  args := []string{stream.Url, "best", "-np 'omxplayer -o hdmi'"}
+  cmd := exec.Command(to_exec, args...)
+  output, _ := cmd.CombinedOutput()
+  fmt.Printf("==> Output: %s\n", string(output))
+
   os.Exit(1)
 }
 
@@ -64,6 +67,11 @@ func FollowedStreams() {
   } else {
     i, _ := strconv.Atoi(choice)
     length := len(streams)
+
+    if length == 0 {
+      fmt.Println("You're not following any streams.")
+      os.Exit(1)
+    }
 
     if i <= length && i >= 0 {
       OpenStream(streams[i])

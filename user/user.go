@@ -1,6 +1,6 @@
 package user
 
 func Name() string {
-  name := "drinkpinesolseegod"
+  name := "test_user1"
   return name
 }
