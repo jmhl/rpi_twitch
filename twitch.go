@@ -58,6 +58,11 @@ func CSGOStreams() {
 func FollowedStreams() {
   streams := api.GetFollows()
 
+  if len(streams) == 0 {
+    fmt.Println("Sorry, none of your followed streamers are online right now.")
+    Menu()
+  }
+
   ListStreams(streams)
   reader := bufio.NewReader(os.Stdin)
   choice, _ := reader.ReadString('\n')
