@@ -25,3 +25,13 @@ func GetStreams(limit int, offset int) []structs.FormattedStream {
 
   return streams
 }
+
+func GetGames(limit int, offset int) []structs.FormattedGame {
+  url := fmt.Sprintf("https://api.twitch.tv/kraken/games/top?limit=%d&offset=%d", limit, offset)
+  fmt.Println(url)
+  res := twitch_request.GetJSON(url)
+  json := twitch_request.DecodeGamesResponse(res)
+  games := format.FormatGames(json)
+
+  return games
+}

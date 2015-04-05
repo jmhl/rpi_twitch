@@ -17,12 +17,19 @@ func ListStreams(streams []structs.FormattedStream) {
   }
 }
 
+func ListGames(games []structs.FormattedGame) {
+  fmt.Println("++++++ GAMES ++++++")
+  for i, game := range games {
+    fmt.Printf("%d) %s\n", i + 1, game.Name)
+  }
+}
+
 func OpenStream(stream structs.FormattedStream) {
   to_exec := "livestreamer"
   args := []string{stream.Url, "best", "-np 'omxplayer -o hdmi'"}
   cmd := exec.Command(to_exec, args...)
   output, _ := cmd.CombinedOutput()
-  fmt.Printf("==> Output: %s\n", string(output))
+  fmt.Printf("%s\n", string(output))
 
   os.Exit(1)
 }
@@ -53,6 +60,35 @@ func CSGOStreams() {
       }
     }
   }
+}
+
+func TopGames() {
+  limit := 20
+  offset := 0
+  var games []structs.FormattedGame
+
+  for true {
+    games = api.GetGames(limit, offset)
+    fmt.Println("Enter 'm' to view more games.")
+    ListGames(games)
+    reader := bufio.NewReader(os.Stdin)
+    choice, _ := reader.ReadString('\n')
+
+    if choice == "q\n" {
+      os.Exit(1)
+    } else if choice == "m\n" {
+      offset = limit
+      limit = limit + 20
+    } else {
+      i, _ := strconv.Atoi(choice)
+      length := len(games)
+
+      if i <= length && i >= 0 {
+	fmt.Println(games[i])
+      }
+    }
+  }
+
 }
 
 func FollowedStreams() {
@@ -87,15 +123,17 @@ func FollowedStreams() {
 func Menu() {
   fmt.Println("RPi Twitch Main Menu")
   fmt.Println("Enter 'f' to view your followed channels.")
-  fmt.Println("Enter 'c' to view CSGO streams.")
+  fmt.Println("Enter 'g' to view the different games.")
+  fmt.Println("Enter 'go' to view CSGO streams.")
   fmt.Println("Press 'q' at any time to quit.")
 
   reader := bufio.NewReader(os.Stdin)
   choice, _ := reader.ReadString('\n')
 
   switch choice {
-    case "f\n": FollowedStreams()
-    case "c\n": CSGOStreams()
+    case "f\n"	: FollowedStreams()
+    case "g\n"	: TopGames()
+    case "go\n"	: CSGOStreams()
   }
 }
 

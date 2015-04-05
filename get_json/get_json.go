@@ -35,3 +35,11 @@ func DecodeFollowsResponse(body []byte) structs.Follows {
 
   return data
 }
+
+func DecodeGamesResponse(body []byte) structs.Top {
+  var data structs.Top
+  err := json.Unmarshal(body, &data)
+  errors.HandleError(err, msg);
+
+  return data
+}

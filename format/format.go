@@ -35,3 +35,14 @@ func FormatFollows(json structs.Follows) []structs.FormattedStream {
 
   return streams
 }
+
+func FormatGames(json structs.Top) []structs.FormattedGame {
+  var games []structs.FormattedGame
+
+  for _, top_info := range json.Top {
+    game := structs.FormattedGame{ Name: top_info.Game.Name }
+    games = append(games, game)
+  }
+
+  return games
+}
