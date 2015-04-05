@@ -5,6 +5,7 @@ import (
   "fmt"
   "os"
   "os/exec"
+  "strings"
   "strconv"
   "./api"
   "./structs"
@@ -29,9 +30,39 @@ func OpenStream(stream structs.FormattedStream) {
   args := []string{stream.Url, "best", "-np 'omxplayer -o hdmi'"}
   cmd := exec.Command(to_exec, args...)
   output, _ := cmd.CombinedOutput()
-  fmt.Printf("%s\n", string(output))
+  fmt.Printf("==> Output: %s\n", string(output))
 
   os.Exit(1)
+}
+
+func GameStreams(name string) {
+  limit := 20
+  offset := 0
+  var streams []structs.FormattedStream
+
+  for true {
+    streams = api.GetStreams(name, limit, offset)
+    fmt.Println("Enter 'm' to view more streams.")
+    ListStreams(streams)
+    reader := bufio.NewReader(os.Stdin)
+    choice, _ := reader.ReadString('\n')
+    choice = strings.Replace(choice, "\n", "", 1)
+
+    if choice == "q" {
+      os.Exit(1)
+    } else if choice == "m" {
+      offset = limit
+      limit = limit + 20
+    } else {
+      i, _ := strconv.Atoi(choice)
+      i = i - 1
+      length := len(streams)
+
+      if i <= length && i >= 0 {
+        OpenStream(streams[i])
+      }
+    }
+  }
 }
 
 func CSGOStreams() {
@@ -40,19 +71,21 @@ func CSGOStreams() {
   var streams []structs.FormattedStream
 
   for true {
-    streams = api.GetStreams(limit, offset)
+    streams = api.GetCSGOStreams(limit, offset)
     fmt.Println("Enter 'm' to view more streams.")
     ListStreams(streams)
     reader := bufio.NewReader(os.Stdin)
     choice, _ := reader.ReadString('\n')
+    choice = strings.Replace(choice, "\n", "", 1)
 
-    if choice == "q\n" {
+    if choice == "q" {
       os.Exit(1)
-    } else if choice == "m\n" {
+    } else if choice == "m" {
       offset = limit
       limit = limit + 20
     } else {
       i, _ := strconv.Atoi(choice)
+      i = i - 1
       length := len(streams)
 
       if i <= length && i >= 0 {
@@ -73,18 +106,20 @@ func TopGames() {
     ListGames(games)
     reader := bufio.NewReader(os.Stdin)
     choice, _ := reader.ReadString('\n')
+    choice = strings.Replace(choice, "\n", "", 1)
 
-    if choice == "q\n" {
+    if choice == "q" {
       os.Exit(1)
-    } else if choice == "m\n" {
+    } else if choice == "m" {
       offset = limit
       limit = limit + 20
     } else {
       i, _ := strconv.Atoi(choice)
+      i = i - 1
       length := len(games)
 
       if i <= length && i >= 0 {
-	fmt.Println(games[i])
+	GameStreams(games[i].Name)
       }
     }
   }
@@ -102,17 +137,14 @@ func FollowedStreams() {
   ListStreams(streams)
   reader := bufio.NewReader(os.Stdin)
   choice, _ := reader.ReadString('\n')
+  choice = strings.Replace(choice, "\n", "", 1)
 
-  if choice == "q\n" {
+  if choice == "q" {
     os.Exit(1)
   } else {
     i, _ := strconv.Atoi(choice)
+    i = i - 1
     length := len(streams)
-
-    if length == 0 {
-      fmt.Println("You're not following any streams.")
-      os.Exit(1)
-    }
 
     if i <= length && i >= 0 {
       OpenStream(streams[i])
@@ -129,11 +161,12 @@ func Menu() {
 
   reader := bufio.NewReader(os.Stdin)
   choice, _ := reader.ReadString('\n')
+  choice = strings.Replace(choice, "\n", "", 1)
 
   switch choice {
-    case "f\n"	: FollowedStreams()
-    case "g\n"	: TopGames()
-    case "go\n"	: CSGOStreams()
+    case "f"  : FollowedStreams()
+    case "g"  : TopGames()
+    case "go" : CSGOStreams()
   }
 }
 
